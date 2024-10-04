@@ -2,12 +2,14 @@
 <template>
   <BasicViewComponent >
     <template v-slot:content>
-      <h1>TEST</h1>
-      <div class="row">
-        <div class="col-12" v-if="game!=null">
-          <h1>{{game.name}}</h1>
+      <div class="row mb-10 mt-3">
+        <div class="col-12 text-center ">
+          <h1>Génération de carte</h1>
         </div>
       </div>
+
+      <SettingsComponent :updateGeneratedMap="updateGeneratedMap"/>
+      <MapComponent :generated-map="generatedMap" v-if="generatedMap!=null"/>
     </template>
   </BasicViewComponent>
 </template>
@@ -17,20 +19,30 @@
 import { v4 as uuidv4 } from 'uuid';
 import {mapGetters} from "vuex";
 import BasicViewComponent from "@/components/BasicViewComponent.vue";
+import SettingsComponent from "@/components/SettingsComponent.vue";
+import MapComponent from "@/components/MapComponent.vue";
 export default {
   name: 'Home',
   components: {
+    MapComponent,
+    SettingsComponent,
     BasicViewComponent
   },
   data() {
     return {
+      generatedMap: null
     }
   },
   computed: {
     ...mapGetters(['isTestMode', "isLoading"]),
   },
-  methods: {
+  watch: {
 
+  },
+  methods: {
+    updateGeneratedMap(map) {
+      this.generatedMap = map;
+    }
   },
   mounted() {
   }

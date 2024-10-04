@@ -1,17 +1,12 @@
 import ApiService from "@/services/api/apiService.js";
 import store from "@/store/store.js";
 
-export default class GameApiService {
+export default class MapApiService {
 
-    static servicePath = '/game';
+    static servicePath = '/map';
 
-    static async selectAll() {
-        return await ApiService.get(`${this.servicePath}`);
-    }
-
-    static async selectById(id) {
-        const token = store.state.auth.token;
-        return await ApiService.get(`${this.servicePath}/${id}`, token);
+    static async generate(settings) {
+        return await ApiService.post(`${this.servicePath}`, settings);
     }
 
 }
