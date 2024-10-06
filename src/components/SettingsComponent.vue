@@ -43,6 +43,7 @@ import {mapActions, mapGetters} from "vuex";
 import { UNITS } from '@/utils/constants';
 import MapApiService from "@/services/api/map/mapApiService.js";
 import ErrorService from "@/services/errorService.js";
+import BiomeApiService from "@/services/api/map/biomeApiService.js";
 export default {
   name: 'SettingsComponent',
   components: {
@@ -56,12 +57,13 @@ export default {
   data() {
     return {
       settings :{
-        height : 6,
-        width : 16,
-        unit : "CENTIMETERS"
+        height : 0,
+        width : 0,
+        unit : null
       },
       otherList: {
-        unitList: UNITS
+        unitList: UNITS,
+        biomeList : []
       },
       rules: {
         required: value => !!value || 'Champ obligatoire.',
@@ -90,8 +92,28 @@ export default {
         await this.setLoading(false);
       }
     },
+    async loadBiomeList() {
+      this.setLoading(true);
+      this.otherList.biomeList = [];
+      let that = this;
+      await BiomeApiService.getAll().then((result) => {
+        that.otherList.biomeList = result;
+      }).catch((error) => {
+        ErrorService.showErrorInAlert(error);
+      });
+      await this.setLoading(false);
+    }
   },
-  mounted() {
+  async mounted() {
+    await this.loadBiomeList();
+    if (this.isTestMode) {
+      this.settings = {
+        height: 120,
+        width: 120,
+        unit: "PIXELS"
+      };
+      this.generateMap();
+    }
   }
 }
 
