@@ -49,10 +49,6 @@ export default {
   components: {
   },
   props: {
-    updateGeneratedMap: {
-      type: Function,
-      required: true
-    }
   },
   data() {
     return {
@@ -81,11 +77,11 @@ export default {
       setLoading: "setLoading",
     }),
     async generateMap() {
-      if (this.$refs.form.validate()) {
-        this.setLoading(true);
+      if (await this.$refs.form.validate()) {
+        await this.setLoading(true);
         let that = this;
         await MapApiService.generate(this.settings).then((result) => {
-          that.updateGeneratedMap(result);
+          that.$emit('update:generatedMap', result);
         }).catch((error) => {
           ErrorService.showErrorInAlert(error);
         });
@@ -112,7 +108,7 @@ export default {
         width: 120,
         unit: "PIXELS"
       };
-      this.generateMap();
+      await this.generateMap();
     }
   }
 }

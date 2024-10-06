@@ -8,8 +8,10 @@
         </div>
       </div>
 
-      <SettingsComponent :updateGeneratedMap="updateGeneratedMap"/>
-      <MapComponent :generated-map="generatedMap" v-if="generatedMap!=null"/>
+      <SettingsComponent @update:generatedMap="updateGeneratedMap"/>
+      <MapComponent v-if="generatedMap!=null"
+                    :generated-map="generatedMap"
+      />
     </template>
   </BasicViewComponent>
 </template>
@@ -30,7 +32,7 @@ export default {
   },
   data() {
     return {
-      generatedMap: null
+      generatedMap: null,
     }
   },
   computed: {
@@ -40,9 +42,10 @@ export default {
 
   },
   methods: {
-    updateGeneratedMap(map) {
-      this.generatedMap = map;
+    updateGeneratedMap(value) {
+      this.generatedMap = value;
     }
+
   },
   mounted() {
   }

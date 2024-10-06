@@ -24,7 +24,7 @@ export default {
     generatedMap: {
       type: Object,
       required: true
-    }
+    },
   },
   data() {
     return {
@@ -35,27 +35,30 @@ export default {
   },
   watch: {
     generatedMap: {
-      handler() {
-        this.drawMap();
+      handler(val) {
+        this.$nextTick(() => {
+          this.drawMap();
+        });
       },
-      deep: true
+      deep: true,
     }
   },
   methods: {
     drawMap() {
       const canvas = this.$refs.mapCanvas;
+      if (!canvas) return;
+      canvas.width = this.generatedMap.widthPx;
+      canvas.height = this.generatedMap.heightPx;
       const ctx = canvas.getContext("2d");
-
       if (!ctx) {
-        console.error("Canvas context is not available");
+        console.error("Le contexte du canvas n'est pas disponible");
         return;
       }
-
       // Parcourir la carte générée et dessiner chaque pixel
       for (let y = 0; y < this.generatedMap.heightPx; y++) {
         for (let x = 0; x < this.generatedMap.widthPx; x++) {
-          const biomeColor = this.generatedMap.map[y][x]; // Récupère le biome pour chaque position
-          ctx.fillStyle = biomeColor; // Obtenir la couleur associée au biome
+          const biome = this.generatedMap.map[x][y]; // Récupère le biome pour chaque position
+          ctx.fillStyle = biome.color; // Obtenir la couleur associée au biome
           ctx.fillRect(x, y, 1, 1); // Dessiner un pixel de 1x1
         }
       }
