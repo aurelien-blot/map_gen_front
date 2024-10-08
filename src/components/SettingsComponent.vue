@@ -30,8 +30,20 @@
           required
           class="col-2"
       ></v-select>
-
-      <div class="col-2 mt-2"><v-btn @click="generateMap" :disabled="!formValid" color="primary"  >Valider</v-btn></div>
+      </div>
+      <div class="row">
+        <div class="col-12">Biomes</div>
+      </div>
+      <div class="row">
+        <v-text-field v-for="(biomeSetting, index) in otherList.biomeList" :key="biomeSetting.biome.id"
+                      v-model="biomeSetting.percentage"
+                      :label="biomeSetting.biome.name"
+                      type="number"
+                      class="col-2"
+        ></v-text-field>
+      </div>
+      <div class="row text-center mb-2">
+        <div class=""><v-btn @click="generateMap" :disabled="!formValid" color="primary"  >Valider</v-btn></div>
       </div>
     </v-form>
   </div>
@@ -55,11 +67,12 @@ export default {
       settings :{
         height : 0,
         width : 0,
-        unit : null
+        unit : null,
+        settingsBiomeList: []
       },
       otherList: {
         unitList: UNITS,
-        biomeList : []
+        biomeList : [],
       },
       rules: {
         required: value => !!value || 'Champ obligatoire.',
@@ -80,6 +93,7 @@ export default {
       if (await this.$refs.form.validate()) {
         await this.setLoading(true);
         let that = this;
+        that.prepareItemBeforeGenerate();
         await MapApiService.generate(this.settings).then((result) => {
           that.$emit('update:generatedMap', result);
         }).catch((error) => {
@@ -88,24 +102,50 @@ export default {
         await this.setLoading(false);
       }
     },
+    prepareItemBeforeGenerate() {
+      this.settings.settingsBiomeList = [];
+      this.otherList.biomeList.forEach((biomeSetting) => {
+        if(biomeSetting.percentage!=null && biomeSetting.percentage > 0){
+          this.settings.settingsBiomeList.push({
+            biomeId: biomeSetting.biome.id,
+            percentage: biomeSetting.percentage
+          });
+        }
+      });
+      if (this.isTestMode) {
+        this.settings.settingsBiomeList = [];
+        this.settings.settingsBiomeList.push({biomeId: 1,percentage: 20});//Océan
+        this.settings.settingsBiomeList.push({biomeId: 2,percentage: 60});//Plaine
+        this.settings.settingsBiomeList.push({biomeId: 3,percentage: 20});//Forêt
+        this.settings.settingsBiomeList.push({biomeId: 4,percentage: 0});//Désert
+      }
+    },
     async loadBiomeList() {
       this.setLoading(true);
       this.otherList.biomeList = [];
       let that = this;
-      await BiomeApiService.getAll().then((result) => {
-        that.otherList.biomeList = result;
+      await BiomeApiService.getAll().then((results) => {
+        that.prepareSettingBiomeList(results);
       }).catch((error) => {
         ErrorService.showErrorInAlert(error);
       });
       await this.setLoading(false);
-    }
+    },
+    prepareSettingBiomeList(elements) {
+      elements.forEach((biome) => {
+        this.otherList.biomeList.push({
+          biome: biome,
+          percentage: 0
+        });
+      });
+    },
   },
   async mounted() {
     await this.loadBiomeList();
     if (this.isTestMode) {
       this.settings = {
-        height: 120,
-        width: 120,
+        height: 300,
+        width: 300,
         unit: "PIXELS"
       };
       await this.generateMap();
